@@ -1,10 +1,9 @@
 <template>
     <div class="form-container">
-      <img src="/images/logo.png" alt="Logo" class="logo"> <!-- Logo added here -->
+      <img src="/images/logo.png" alt="Logo" class="logo"> 
       <h2 class="text-center">Login to Your Account</h2>
       <form @submit.prevent="handleLogin">
-        <div v-if="error" class="error-message">{{ error }}</div>
-  
+        <div v-if="currentMessage" :class="messageClass">{{ currentMessage }}</div>
         <div class="form-group">
           <label class="form-label" for="email">Email:</label>
           <input type="email" id="email" class="form-control" v-model="email" required>
@@ -24,65 +23,79 @@
     </div>
   </template>
   
-  <script>
-  // Example of a basic handleLogin method
-  import { auth } from '../firebase'; // Adjust the import path as necessary
-  import { signInWithEmailAndPassword } from 'firebase/auth';
-  
-  export default {
-    data() {
-      return {
-        email: '',
-        password: '',
-        error: '', // To store any error messages
-      };
+  // In UserLogin.vue
+  // In UserLogin.vue
+<script>
+import { auth } from '../firebase'; 
+import { signInWithEmailAndPassword } from 'firebase/auth';
+
+export default {
+  data() {
+    return {
+      email: '',
+      password: '',
+      error: '', // To store any error messages
+      message: '', // To store success or info messages
+    };
+  },
+  computed: {
+    currentMessage() {
+      return this.error || this.message; // Show error if exists, otherwise show message
     },
-    methods: {
-        async handleLogin() {
-  // Basic validation
-  if (!this.email || !this.password) {
-    this.error = 'Please enter your email and password.';
-    return;
-  }
-
-  try {
-    const userCredential = await signInWithEmailAndPassword(auth, this.email, this.password);
-    const user = userCredential.user;
-
-    // Check if email is verified
-    if (!user.emailVerified) {
-      this.error = 'Please verify your email before logging in.';
-      // Optionally log out the user
-      await auth.signOut();
-      return;
+    messageClass() {
+      return this.error ? 'error-message' : 'success-message'; // Determine the class based on the type of message
+    },
+  },
+  created() {
+    // Check for the message in query parameters
+    if (this.$route.query.message) {
+      this.message = this.$route.query.message; // Set the message from the query parameter
+      setTimeout(() => {
+        this.message = ''; // Clear message after 10 seconds
+      }, 10000); // 10000 milliseconds = 10 seconds
     }
+  },
+  methods: {
+    async handleLogin() {
+      // Basic validation
+      if (!this.email || !this.password) {
+        this.error = 'Please enter your email and password.';
+        return;
+      }
 
-    // Proceed with login and redirect to the main page
-    this.error = ''; // Clear any previous errors
-    // Redirect to your main application page here
-  } catch (error) {
-    console.error('Error logging in:', error);
-    this.error = error.message; // Display the error message
-  }
-},
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, this.email, this.password);
+        const user = userCredential.user;
 
+        // Check if email is verified
+        if (!user.emailVerified) {
+          this.error = 'Please verify your email before logging in.';
+          // Optionally log out the user
+          await auth.signOut();
+          return;
+        }
+
+        this.error = ''; // Clear any previous errors
+      } catch (error) {
+        console.error('Error logging in:', error);
+        this.error = error.message; // Display the error message
+      }
     },
-  };
-  </script>
+  },
+};
+</script>
+
+  
   
   <style>
-  /* Reuse the same styles as in the UserSignup.vue */
-  
-  /* Overall body style with background image */
   body {
-    background-image: url('/public/images/background.jpg'); /* Adjusted path */
+    background-image: url('/public/images/background.jpg'); 
     background-size: cover; /* Cover the entire background */
     background-position: center; /* Center the background */
     font-family: 'Montserrat', sans-serif; /* Consistent font */
     color: #333; /* Default text color */
   }
   
-  /* Styles for a smaller, minimalist, and transparent container */
   .form-container {
     max-width: 350px; /* Smaller width for a minimalist look */
     margin: 50px auto;
@@ -173,5 +186,14 @@
     border-radius: 5px; /* Rounded corners */
     margin-top: 10px; /* Space above the error message */
   }
+  .success-message {
+  color: green; /* Or your desired success styling */
+  background-color: #f8d7da; /* Light red background */
+    border: 1px solid #f5c6cb; /* Border color */
+    padding: 10px; /* Padding for spacing */
+    border-radius: 5px; /* Rounded corners */
+    margin-top: 10px; /* Space above the error message */
+}
+
   </style>
   

@@ -1,6 +1,6 @@
 <template>
   <div class="form-container">
-    <img src="/images/logo.png" alt="Logo" class="logo"> <!-- Logo added here -->
+    <img src="/images/logo.png" alt="Logo" class="logo"> 
     <h2 class="text-center">Create an Account</h2>
     <form @submit.prevent="handleSignup">
       <div v-if="currentMessage" :class="messageClass">{{ currentMessage }}</div>
@@ -37,7 +37,7 @@
 
 <script>
 // Import the necessary Firebase functions
-import { auth } from '../firebase'; // Adjust the import path as necessary
+import { auth } from '../firebase'; 
 import { createUserWithEmailAndPassword, sendEmailVerification} from 'firebase/auth';
 
 export default {
@@ -87,14 +87,8 @@ export default {
         this.name = '';
         this.phone = '';
         this.error = ''; // Clear any previous errors
-        
-        // Set success message
-        this.message = 'A verification email has been sent to your email address.'; 
-
-        // Clear the message after a delay
-        setTimeout(() => {
-          this.message = ''; // Clear message after 10 seconds
-        }, 10000); // 10000 milliseconds = 10 seconds
+    
+        this.$router.push({ path: '/login', query: { message: 'A verification email has been sent to your email address.' } });
 
       } catch (error) {
         console.error('Error signing up:', error);
@@ -106,13 +100,10 @@ export default {
 };
 </script>
 
-
-
-
 <style>
 /* Overall body style with background image */
 body {
-  background-image: url('/public/images/background.jpg'); /* Adjusted path */
+  background-image: url('/public/images/background.jpg'); 
   background-size: cover; /* Cover the entire background */
   background-position: center; /* Center the background */
   font-family: 'Montserrat', sans-serif; /* Consistent font */
